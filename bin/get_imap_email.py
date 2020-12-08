@@ -367,7 +367,7 @@ class IMAPProcessor(object):
                 _, list_ = M.list()
                 for f in list_[:]:
                     x = f.split()
-                    mailbox = " ".join(x[2:])
+                    mailbox = x[2]
                     folder_list.append(mailbox)
 
             # If the user supplied a list of mailboxes, split them up and put in list
@@ -407,8 +407,8 @@ class IMAPProcessor(object):
     # ---------------------------------------------------
     def getMailbox(self, M, box):
 
-        box = box.replace('"/" ', '')
-        box = box.strip()
+        box = str(box.decode("utf-8")).replace('"/" ', '')
+        box = str(box).strip()
         logging.debug("about to dump mailbox %s" % (box))
 
         # new method
@@ -512,7 +512,7 @@ class IMAPProcessor(object):
         dstr = ''
         try:
             _, data = M.fetch(num, '(INTERNALDATE)')
-            dates = data[0]
+            dates = data[0].decode('UTF-8')
             begin = dates.find('"')
             end = dates.rfind('"')
             dstr = dates[begin+1:end]
@@ -611,11 +611,11 @@ class IMAPProcessor(object):
 
             # get message size
             _, data = M.fetch(num, '(RFC822.SIZE)')
-            size = data[0].split()
+            size = str(data[0]).split()
             size = size[-1].replace(')', '')
 
             # create message object from the body
-            message = email.message_from_string(body)
+            message = email.message_from_string(str(body.decode('UTF-8')))
 
             # Try printing out the date first, we will use this to break the events.
             if dstr == '':
@@ -698,11 +698,11 @@ class IMAPProcessor(object):
 
 
         except Exception as e:
-            logging.debug("1. Failed to get and print message with UID " + num )
+            logging.debug("1. Failed to get and print message with UID " + str(num) )
             if self.debug:
                 logging.debug(e)
                 print(traceback.print_exc(file=sys.stderr))
-            logging.debug("2. Failed to get and print message with UID " + num )
+            logging.debug("2. Failed to get and print message with UID " + str(num) )
 
 
 # --------------------------------------------------------------
